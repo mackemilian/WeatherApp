@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { StyleSheet, View, Image, Text, ScrollView } from "react-native";
+import React from "react";
+import { StyleSheet, View, Image, Text, ScrollView, TouchableOpacity } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 
 import colors from "../config/colors";
@@ -8,7 +8,7 @@ import { weatherServices } from "../services/weatherServices";
 import { Umbrella } from "../assets/weatherIcons";
 
 export default function UploadImageScreen() {
-  const [weather, setWeather] = React.useState<IWeather>();
+  const [weather, setWeather] = React.useState<IWeather | null>(null);
   React.useEffect(() => {
     getListingsFromService();
   }, []);
@@ -17,18 +17,31 @@ export default function UploadImageScreen() {
     const results = await weatherServices.getWeather(1, 5);
     console.log(results);
     setWeather(results)
-    console.log(weather?.geometry.coordinates);
-    console.log(weather?.properties.meta.units.air_temperature);
-    console.log(weather?.properties.meta.units.wind_speed);
     console.log(weather?.properties.timeseries[0].data.instant.details.air_temperature);
+    console.log(weather?.properties.timeseries[0].data.next_1_hours.summary.symbol_code);
 };
+
+const getIcon = (symbol_code: string, date: Date) => {
+  let hours = date.getHours();
+  let timeCode = (hours > 6 && hours < 18) ? ("_day") : ("_night");
+  let imageString = `${symbol_code}`
+}
 
 
   // Wait for weather to not be null before rendering
   if (!weather) {
     return null;
-  }
-
+  } else {
+    const getImage = (s: string) => {
+      if(!s) return;
+      console.log(`../assets/weatherIcons/${s}.png`);
+      var imageString : string = `../assets/weatherIcons/${"snow"}.png`;
+      return (
+      <Image
+      style={styles.tinyLogo}
+      source={{uri: imageString}}
+      />);
+    }
   return (
     <View style={[styles.flex, styles.container]}>
        <ScrollView style={styles.scrollView}>
@@ -36,20 +49,31 @@ export default function UploadImageScreen() {
        
       </View>
       <View style={[styles.bottomContainer]}>
-       
-        <Image
-          style={styles.wave}
-          source={require('../assets/wave.png')}
-        />
-        <View style={[styles.sircleContainer]}>
-          <Text style={[styles.sircleText]}>+</Text>
-        </View>
+        
+        <ScrollView style={styles.scrollViewSide} horizontal={true}  showsHorizontalScrollIndicator={false}>
+          <View style={[styles.flex, styles.weatherContainer]}>
+        
+          {Object.entries(weather?.properties.timeseries).slice(0, 24).map((key, index) => (
+            <TouchableOpacity key={index}>
+            <View style={[styles.weatherCard]} > 
+            <Text style={[styles.weatherCardTime]}>{new Date(weather?.properties.timeseries[index].time!).getHours()}</Text>
+            <View style={[styles.weatherCardLine]}/>
+           
+            <getImage s = {weather?.properties.timeseries[index].data.next_1_hours.summary.symbol_code}/>
+         
+             <Text style={[styles.weatherCardTemprature]}>{weather?.properties.timeseries[index].data.instant.details.air_temperature}°C</Text>
+          </View>
+          </TouchableOpacity>
+          ))}
+            
+           </View>
+        </ScrollView>
     
         
       </View>
       </ScrollView>
     </View>
-  );
+  );}
 }
 
 const styles = StyleSheet.create({
@@ -69,15 +93,14 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     width: "100%",
-    height: 500,
+    height: 400,
     backgroundColor: "#4dbcb4",
     position: "relative",
   },
   bottomContainer: {
     width: "100%",
     height: 500,
-    backgroundColor: "#4dbcb4",
-    zIndex: 2,
+    backgroundColor: "#f2f2f2",
     position: "relative",
   },
   wave:{
@@ -115,5 +138,52 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     display: "flex",
-  }
+  },
+  scrollViewSide:{
+    width: "100%",
+    height: 175,
+    position: "relative",
+    marginTop: 10,
+  },
+  weatherCard:{
+    width: 100,
+    height: 150,
+    backgroundColor: "#f2f2f2",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  weatherCardTime:{
+    fontSize: 18,
+    fontWeight: "normal",
+    color: "#5b5b5b",
+    alignSelf: "center",
+    top: 15,
+    position: "absolute",
+  },
+  weatherContainer:{
+    height: "100%",
+    width: "auto",
+    display: "flex",
+    flexDirection: "row",
+  },
+  tinyLogo: {
+    width: 65,
+    height: 65,
+    alignSelf: "center",
+  },
+  weatherCardTemprature:{
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#5b5b5b",
+    alignSelf: "center",
+    bottom: 15,
+    position: "absolute",
+  },
+  weatherCardLine:{
+    width: "100%",
+    height: 2,
+    backgroundColor: "#ececec",
+    position: "absolute",
+    alignSelf: "center",
+  },
 });

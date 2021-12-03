@@ -43,7 +43,7 @@ export interface IUnits {
 }
 
 export interface ITimesery {
-    time: Date;
+    time: string;
     data: IData;
 }
 
