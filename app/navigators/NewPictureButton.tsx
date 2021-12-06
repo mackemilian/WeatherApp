@@ -17,12 +17,7 @@ type Props = {
 export default function NewPictureButton({ onPress }: Props) {
   return (
     <TouchableWithoutFeedback onPress={onPress}>
-      <View style={styles.container}>
-      <Image
-        style={styles.tinyLogo}
-        source={require('../assets/umbrella.png')}
-      />
-      </View>
+    
     </TouchableWithoutFeedback>
   );
 }

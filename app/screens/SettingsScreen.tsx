@@ -12,20 +12,10 @@ import { IWeather } from "../interfaces/Iweather";
 
 export default function SettingsScreen({
   route,
-  navigation,
 }: BottomTabScreenProps<RootBottomTabPropTypes, "Settings">) {
   return (
     <View style={styles.container}>
-      <User username={route.params.username} imageUri={route.params.imageUri} />
-      <Button
-        title="Logg ut"
-        onPress={() =>
-          navigation
-            .getParent<NavigationProp<RootLoginParamList>>()
-            .navigate("Login")
-        }
-        type="danger"
-      />
+      
     </View>
   );
 }
